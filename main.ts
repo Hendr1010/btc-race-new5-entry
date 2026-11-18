@@ -21,16 +21,20 @@ import { BPS, runBars, type BarsState, type BuyInput, type OrderInput, type Sell
 
 /** How far back the rolling high looks (bars). */
 const LOOKBACK = 60;
-/** Entry: close this far below the rolling high, in bps. */
-const DIP_BPS = 105n;
+/** Entry: close this far below the rolling high, in bps.
+ *  Tuned 105 -> 120: a deeper dip skips the false entries that bleed in a
+ *  waterfall market (best three-window total of the dip grid; dip 130 already
+ *  loses on round 4's window). */
+const DIP_BPS = 120n;
 /** Exit: take profit this far above cost, in bps.
- *  Tuned 150 -> 180: dip recoveries on this pool usually run past 1.5% before
- *  fading, and TP 180 beat TP 150 on both recent dev windows (+$9.28 vs +$6.70
- *  on the round-5 window, +$30.98 vs +$24.70 on round 4's) with the best
- *  three-window total. TP 250 was better on one window only (1 trade) — overfit. */
-const TP_BPS = 180n;
-/** Exit: stop loss this far below cost, in bps. */
-const SL_BPS = 55n;
+ *  Tuned 150 -> 210: dip recoveries on this pool usually run past 2% before
+ *  fading. TP 205–215 is a flat, stable region (+$5.91 on this round's dev
+ *  window, +$13.25 on round 4's); TP 220 already collapses round 4 to 1 trade. */
+const TP_BPS = 210n;
+/** Exit: stop loss this far below cost, in bps.
+ *  Tuned 55 -> 70: with the wider TP, the wider stop keeps winners alive;
+ *  SL 60 re-enters the churn (7 trades, gate window turns negative). */
+const SL_BPS = 70n;
 /** Orders are refused if the fill would land further than this past the close. */
 const MAX_SLIPPAGE_BPS = 100;
 /** Bars of history before the first entry is allowed. */
