@@ -5,26 +5,29 @@
 [![Reward](https://make.fun/badge/btc-race-24h-20261118-1444/Hendr1010/btc-race-new5-entry/reward.svg)](https://make.fun/bounty/btc-race-24h-20261118-1444?utm_source=github&utm_medium=readme&utm_campaign=makefun)
 
 A long-only dip-bounce scalper for cbBTC on 1-minute Orca bars. It buys a sharp
-dip (close ≥105 bps below the 60-bar rolling high) with all cash and sells the
-snap-back at +180 bps take-profit or −55 bps stop-loss, then sits in cash until
+dip (close ≥120 bps below the 60-bar rolling high) with all cash and sells the
+snap-back at +210 bps take-profit or −70 bps stop-loss, then sits in cash until
 the next real swing. No randomness, no clock, no network — two runs on the same
 bars produce identical orders.
 
 ## Tuning
 
-Validated on three published dev windows (local backtest, next-minute-open
-fills, 4 bps fee + 2 bps slippage):
+Validated on three published dev windows with the replay's exact fill model
+(next-minute-open fills, 4 bps fee + 2 bps slippage + constant-product price
+impact against the fill bar's pool depth):
 
 | setting | round-5 window | round-4 window | 20261113 window |
 | --- | --- | --- | --- |
-| TP 150 / SL 55 (round 4) | +$6.70 | +$24.70 | −$40.43 |
-| **TP 180 / SL 55 (this bot)** | **+$9.28** | **+$30.98** | −$37.47 |
-| TP 200 / SL 55 | +$11.68 | +$19.06 | −$32.97 |
+| TP 150 / SL 55, dip 105 (round 4) | −$5.61 | +$13.73 | −$79.00 |
+| TP 180 / SL 55, dip 105 | −$3.03 | +$19.35 | −$76.12 |
+| **TP 210 / SL 70, dip 120 (this bot)** | **+$5.91** | **+$13.25** | −$43.19 |
 
-Rejected by the same tests: a shallower second entry trigger (lost money on
-every window), scale-ins (never triggered), and trend filters (blocked the
-winning trades along with the losers). TP 180 / SL 55 was picked for the best
-three-window total, not the best single window — TP 250 won one window with a
-single trade and was discarded as overfit.
+The round-4 settings lose money on this round's dev window — they were
+discarded, not carried over. Rejected by the same tests: a shallower second
+entry trigger (lost money on every window), scale-ins (never triggered), trend
+filters (blocked the winning trades along with the losers), and trailing exits
+(worse on the gate window). TP 205–215 is a flat, stable region, not a spike:
+TP 220 already collapses round 4's window to a single trade.
 
-Dev grade on this round's window (local): PnL +$9.28, 5 trades, max drawdown 1.50%.
+Dev grade on this round's window (grade-local, exact replay): PnL +$5.91,
+5 trades, max drawdown 1.65%.
